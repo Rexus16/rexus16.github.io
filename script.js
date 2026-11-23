@@ -1,45 +1,47 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  // =========================
-  // REXUS INTRO ANIMATION
-  // =========================
 
+  // REXUS INTRO
   const introScreen = document.getElementById("intro-screen");
-  const progressBar = document.querySelector(".progress-bar");
-  const introText = document.querySelector(".intro-text");
+  const progressBar = document.getElementById("loader-progress");
+  const introText = document.getElementById("intro-text");
+  const percentText = document.getElementById("loader-percent");
+  const loader = document.querySelector(".loader");
 
-  if (introScreen) {
+  if (introScreen && progressBar && percentText) {
+    progressBar.classList.add("progress-bar");
+    if (loader) loader.classList.add("progress-container");
+    if (introText) introText.classList.add("intro-text");
+
     let progress = 0;
 
     const loading = setInterval(() => {
-      progress += 1;
+      progress++;
 
-      if (progressBar) {
-        progressBar.style.width = `${progress}%`;
-      }
-
-      if (introText) {
-        introText.textContent = `STARTING REXUS ${progress}%`;
-      }
+      progressBar.style.width = `${progress}%`;
+      percentText.textContent = `${progress}%`;
 
       if (progress >= 100) {
         clearInterval(loading);
 
         setTimeout(() => {
-          introScreen.classList.add("intro-hidden");
+          introScreen.classList.add("hide");
         }, 400);
       }
-    }, 30);
+    }, 25);
+  } else if (introScreen) {
+    introScreen.classList.add("hide");
   }
 
-  // =========================
   // MOBILE NAVIGATION
-  // =========================
+  const menuButton = document.querySelector(".menu-btn");
+  const navigation = document.querySelector(".navbar nav");
 
-  const menuButton = document.querySelector(".menu-toggle");
-  const navigation = document.querySelector(".nav-links");
+  if (navigation) navigation.classList.add("nav-links");
 
   if (menuButton && navigation) {
+    menuButton.setAttribute("aria-expanded", "false");
+
     menuButton.addEventListener("click", () => {
       navigation.classList.toggle("active");
 
@@ -47,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       menuButton.setAttribute("aria-expanded", String(isOpen));
     });
 
-    navigation.querySelectorAll("a").forEach((link) => {
+    navigation.querySelectorAll("a").forEach(link => {
       link.addEventListener("click", () => {
         navigation.classList.remove("active");
         menuButton.setAttribute("aria-expanded", "false");
@@ -55,63 +57,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // =========================
   // CATEGORY SEARCH
-  // =========================
-
-  const searchInput = document.querySelector("#search-input");
+  const searchInput = document.getElementById("main-search");
   const categoryCards = document.querySelectorAll(".category-card");
+  const searchMessage = document.getElementById("search-message");
 
-  if (searchInput && categoryCards.length) {
+  if (searchInput) {
     searchInput.addEventListener("input", () => {
-      const searchValue = searchInput.value
-        .trim()
-        .toLowerCase();
-
+      const query = searchInput.value.trim().toLowerCase();
       let found = 0;
 
-      categoryCards.forEach((card) => {
-        const cardText = card.textContent.toLowerCase();
-        const matches = cardText.includes(searchValue);
+      categoryCards.forEach(card => {
+        const searchableText =
+          `${card.textContent} ${card.dataset.search || ""}`.toLowerCase();
+
+        const matches = searchableText.includes(query);
 
         card.style.display = matches ? "" : "none";
 
         if (matches) found++;
       });
 
-      let message = document.querySelector(".search-message");
-
-      if (!message) {
-        message = document.createElement("p");
-        message.className = "search-message";
-        searchInput.parentElement.appendChild(message);
-      }
-
-      if (searchValue && found === 0) {
-        message.textContent = "No matching category found.";
-      } else {
-        message.textContent = "";
+      if (searchMessage) {
+        if (!query) {
+          searchMessage.textContent =
+            "Discover your next favourite resource.";
+        } else if (found === 0) {
+          searchMessage.textContent = "No matching category found.";
+        } else {
+          searchMessage.textContent = `${found} matching categories found.`;
+        }
       }
     });
   }
 
-  // =========================
-  // COMING SOON NOTIFICATION
-  // =========================
-
-  document.querySelectorAll(".coming-soon").forEach((item) => {
-    item.addEventListener("click", (event) => {
-      event.preventDefault();
+  // COMING SOON
+  document.querySelectorAll(".coming-soon").forEach(item => {
+    item.addEventListener("click", () => {
       alert("This REXUS section is coming soon!");
     });
   });
 
-  // =========================
-  // SMOOTH SCROLLING
-  // =========================
-
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    link.addEventListener("click", (event) => {
+  // SMOOTH SCROLL
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener("click", event => {
       const targetId = link.getAttribute("href");
 
       if (!targetId || targetId === "#") return;
@@ -120,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (target) {
         event.preventDefault();
-
         target.scrollIntoView({
           behavior: "smooth",
           block: "start"
@@ -128,4 +116,5 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
 });
